@@ -1,2 +1,2 @@
-python bloom-create.py 5 40000000 alt.txt alt
+python bloom-create.py 5 40000000 btc.txt btc yes
 pause

@@ -7,17 +7,18 @@
 @telegram: https://t.me/NonameHunt
 """
 
-version = '2.1 03.02.23'
+version = '2.10 12.02.23'
 
 from sys import argv
-from os import system, path, name, mkdir
+from os import system, path, name, mkdir, remove
 from time import time
 from signal import SIGINT, SIG_IGN, signal
 from datetime import datetime
-from lib.secp256k1_lib import b58_decode, bech32_address_decode
+from lib.secp256k1_lib import b58_decode, bech32_address_decode, prepare_bin_file
 from lib.libhunt import LibHUNT
 from cashaddress import convert
 from multiprocessing import Pool, freeze_support, cpu_count
+from lib.patina import HashMap
 from colorama import Back, Fore, Style, init
 init(autoreset = True)
 
@@ -117,12 +118,18 @@ if __name__ == "__main__":
     div = int(argv[2], 10)
     file_in = argv[3]
     prefix = argv[4]
-    
+    rescan = argv[5]
+        
     line_count = 0
-    step = 10000
+    step = 5000
     total_count = 0
     file_count = 0
     print_count = 0
+    rscan = False
+    if rescan == 'yes':
+        rscan = True
+    else:
+        rscan = False
     co = 0
     err = 0
     l = []
@@ -140,6 +147,9 @@ if __name__ == "__main__":
     global_timer = time()
     st = time()
     pool = Pool(th, init_worker)
+    if rscan: 
+        HM: HashMap[str, int] = HashMap()
+        sec = 0
     with open(file_in, 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
@@ -168,9 +178,13 @@ if __name__ == "__main__":
                     print(f'[I] {color.green}Закончили сортировать. ({time()-st_:.2f}) sec')
                     st_ = time()
                     print(f'[I] {color.green}Создаем блюм - {prefix}{file_count}.bin')
-                    my_bloom = LibHUNT(len(BF_list)+5000000, 0.0000000000001)
+                    my_bloom = LibHUNT(len(BF_list), 0.0000000000001)
                     for item in BF_list:
+                        if rscan: 
+                            HM.insert(item, sec)
+                            sec += 1
                         my_bloom.add(item)
+                        
                     my_bloom.save(f'{prefix}{file_count}.bin')
                     print(f'[I] {color.green}Закончили создание и запись. ({time()-st_:.2f}) sec')
                     BF_list = []
@@ -208,12 +222,21 @@ if __name__ == "__main__":
             print(f'[I] {color.green}Закончили сортировать. ({time()-st_:.2f}) sec')
             st_ = time()
             print(f'[I] {color.green}Создаем блюм - {prefix}{file_count}.bin')
-            my_bloom = LibHUNT(len(BF_list)+5000000, 0.0000000000001)
+            my_bloom = LibHUNT(len(BF_list), 0.0000000000001)
             for item in BF_list:
+                if rscan: 
+                    HM.insert(item, sec)
+                    sec += 1
                 my_bloom.add(item)
             my_bloom.save(f'{prefix}{file_count}.bin')
             print(f'[I] {color.green}Закончили создание и запись. ({time()-st_:.2f}) sec')
             BF_list = []
-            
+    
+    if rscan:
+        print(f'[I] {color.green}Создаем ресканирующий файл - {prefix}.rscan')
+        HM.save(f'{prefix}.rescan')
+        print(f'[I] {color.yellow} Add elements: {HM.len()}')
+        print(f'[I] {color.green}Ресканирующий файл создан.')
+
     print(f'Finish.')
             
