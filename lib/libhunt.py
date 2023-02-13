@@ -2,7 +2,7 @@ import ctypes
 import os
 import platform
 
-version_LIB = "2.10 / 13.02.23"
+version_LIB = "2.9 / 05.02.23"
 
 class LibHUNT:
     if platform.system().lower().startswith('win'):
@@ -179,7 +179,10 @@ class LibHUNT:
             Returns:
                 bool: True if the item added, False if the item is already in the filter"""
         if type(buffer) == str: buffer = buffer.zfill(40)
-        binary_data = buffer if isinstance(buffer, bytes) else bytes.fromhex(buffer)
+        try:
+            binary_data = buffer if isinstance(buffer, bytes) else bytes.fromhex(buffer)
+        except:
+            print(buffer)
         result = LibHUNT.__bloom_add(self.__bloom, binary_data, len(binary_data))
         if result == -1:
             raise RuntimeError("[E] libhunt add bloom: bloom not ready")

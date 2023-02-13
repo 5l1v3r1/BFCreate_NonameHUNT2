@@ -195,7 +195,8 @@ if __name__ == "__main__":
                         try:
                             speed_float, speed_hash = convert_int(tmp/(time()-st))
                         except:
-                            speed_float, speed_hash = convert_int(tmp/1)                        print(' '*110,end='\r')
+                            speed_float, speed_hash = convert_int(tmp/1)
+                        print(' '*110,end='\r')
                         print(f'{color.yellow}[Total time: {time()-global_timer:.2f}] [Total Hash: {total_count}] [error:{err}] [Speed:{speed_float} {speed_hash}]',end='\r')
                         print_count = 0
                     else: print_count += 1
