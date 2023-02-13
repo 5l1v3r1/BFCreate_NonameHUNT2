@@ -2,7 +2,7 @@ import ctypes
 import os
 import platform
 
-version_LIB = "2.9 / 05.02.23"
+version_LIB = "2.10 / 13.02.23"
 
 class LibHUNT:
     if platform.system().lower().startswith('win'):
