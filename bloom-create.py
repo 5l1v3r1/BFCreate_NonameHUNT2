@@ -7,7 +7,7 @@
 @telegram: https://t.me/NonameHunt
 """
 
-version = '2.10 12.02.23'
+version = '2.11 13.02.23'
 
 from sys import argv
 from os import system, path, name, mkdir, remove
