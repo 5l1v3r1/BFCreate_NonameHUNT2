@@ -7,14 +7,14 @@
 @telegram: https://t.me/NonameHunt
 """
 
-version = '2.11 13.02.23'
+version = 'Bloom creator 3.0 14.02.23'
 
-from sys import argv
+from argparse import ArgumentParser
 from os import system, path, name, mkdir, remove
 from time import time
 from signal import SIGINT, SIG_IGN, signal
 from datetime import datetime
-from lib.secp256k1_lib import b58_decode, bech32_address_decode, prepare_bin_file
+from lib.secp256k1_lib import b58_decode, bech32_address_decode
 from lib.libhunt import LibHUNT
 from cashaddress import convert
 from multiprocessing import Pool, freeze_support, cpu_count
@@ -109,27 +109,30 @@ def create_list(res):
         lis.append(res)
     return lis
 
+def createParser():
+    parser = ArgumentParser(description='BrainHunt-EX')
+    parser.add_argument ('-th', '--threading', action='store', type=int, help='threading', default='1')
+    parser.add_argument ('-infile', '--infile', action='store', type=str, help='file address', default='')
+    parser.add_argument ('-rescan', '--rescan', action='store_true', help='rescan enable')
+    parser.add_argument ('-prefix', '--prefix', action='store', type=str, help='prefix', default='')
+    parser.add_argument ('-split', '--split', action='store', type=int, help='split file', default='40000000')
+
+    return parser.parse_args().threading, parser.parse_args().infile, parser.parse_args().rescan, parser.parse_args().prefix, parser.parse_args().split
+
+
 if __name__ == "__main__":
     freeze_support()
     cls()
-    th = int(argv[1], 10)
-    if th < 1 or th > cpu_count():
-        print(f'Error cores')
-    div = int(argv[2], 10)
-    file_in = argv[3]
-    prefix = argv[4]
-    rescan = argv[5]
-        
+    th, file_in, rescan, prefix, split  = createParser()
+    if th < 1:
+        print('[E] The number of processes must be greater than 0')
+        th = 1
+
     line_count = 0
     step = 5000
     total_count = 0
     file_count = 0
     print_count = 0
-    rscan = False
-    if rescan == 'yes':
-        rscan = True
-    else:
-        rscan = False
     co = 0
     err = 0
     l = []
@@ -142,12 +145,12 @@ if __name__ == "__main__":
     print(f'[I] Used kernel: {color.cyan}{th}')
     print(f'[I] File address : {color.cyan}{file_in}')
     print(f'[I] Prefix :{color.cyan} {prefix}')
-    print(f'[I] Divider line : {color.cyan}{div}')
+    print(f'[I] Divider line : {color.cyan}{split}')
     print('-'*70,end='\n')
     global_timer = time()
     st = time()
     pool = Pool(th, init_worker)
-    if rscan: 
+    if rescan: 
         HM: HashMap[str, int] = HashMap()
         sec = 0
     with open(file_in, 'r', encoding='utf-8') as file:
@@ -166,30 +169,34 @@ if __name__ == "__main__":
                         err += 1
                         print(f'\n[W] <> 40')
                         continue
-                        
                     BF_list.append(res[0])
                     total_count += 1
                     co += 1
                     tmp += 1
-                if co >= div:
+                if co >= split:
                     st_ = time()
                     print(f'\n[I] {color.green}Сортируем... {len(BF_list)} элементов')
                     BF_list.sort()
                     print(f'[I] {color.green}Закончили сортировать. ({time()-st_:.2f}) sec')
                     st_ = time()
                     print(f'[I] {color.green}Создаем блюм - {prefix}{file_count}.bin')
-                    my_bloom = LibHUNT(len(BF_list), 0.0000000000001)
+                    if len(BF_list) < 1000: 
+                        print(f'\n[W] {color.red}Количество адресов в файле должно быть не менее 1000, сейчас {len(BF_list)}')
+                        exit()
+                    bloom = LibHUNT(len(BF_list), 0.0000000000001)
                     for item in BF_list:
-                        if rscan: 
+                        if rescan: 
                             HM.insert(item, sec)
                             sec += 1
-                        my_bloom.add(item)
-                        
-                    my_bloom.save(f'{prefix}{file_count}.bin')
+                        res = bloom.add(item)
+                        if res == -1: print(f'\n[E] {color.res}Ошибка подачи HASH, подан HASH:{item} он не является HEX')
+                        if res == -2: print(f"\n[E] {color.res}libhunt add bloom: bloom not ready")
+                    bloom.save(f'{prefix}{file_count}.bin')
                     print(f'[I] {color.green}Закончили создание и запись. ({time()-st_:.2f}) sec')
                     BF_list = []
                     file_count += 1
                     co = 0
+                    bloom.free()
                 else:
                     if print_count == 100:
                         try:
@@ -200,8 +207,6 @@ if __name__ == "__main__":
                         print(f'{color.yellow}[Total time: {time()-global_timer:.2f}] [Total Hash: {total_count}] [error:{err}] [Speed:{speed_float} {speed_hash}]',end='\r')
                         print_count = 0
                     else: print_count += 1
-                    
-                    
                 tmp = 0
                 st = time()
                 l = []
@@ -225,21 +230,27 @@ if __name__ == "__main__":
             print(f'[I] {color.green}Закончили сортировать. ({time()-st_:.2f}) sec')
             st_ = time()
             print(f'[I] {color.green}Создаем блюм - {prefix}{file_count}.bin')
-            my_bloom = LibHUNT(len(BF_list), 0.0000000000001)
+            if len(BF_list) < 1000: 
+                print(f'\n[W] {color.red}Количество адресов в файле должно быть не менее 1000, сейчас {len(BF_list)}')
+                exit()
+            bloom = LibHUNT(len(BF_list), 0.0000000000001)
             for item in BF_list:
-                if rscan: 
+                if rescan: 
                     HM.insert(item, sec)
                     sec += 1
-                my_bloom.add(item)
-            my_bloom.save(f'{prefix}{file_count}.bin')
+                res = bloom.add(item)
+                if res == -1: print(f'\n[E] {color.res}Ошибка подачи HASH, подан HASH:{item} он не является HEX')
+                if res == -2: print(f"\n[E] {color.res}libhunt add bloom: bloom not ready")
+            bloom.save(f'{prefix}{file_count}.bin')
             print(f'[I] {color.green}Закончили создание и запись. ({time()-st_:.2f}) sec')
             BF_list = []
+            bloom.free()
     
-    if rscan:
-        print(f'[I] {color.green}Создаем ресканирующий файл - {prefix}.rscan')
+    if rescan:
+        print(f'[I] {color.green}Создаем ресканирующий файл - {prefix}.rescan')
         HM.save(f'{prefix}.rescan')
-        print(f'[I] {color.yellow} Add elements: {HM.len()}')
-        print(f'[I] {color.green}Ресканирующий файл создан.')
+        print(f'[I] {color.green}Ресканирующий файл создан. количество элементов:{HM.len()}')
+        del HM
 
     print(f'Finish.')
             

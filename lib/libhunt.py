@@ -158,7 +158,6 @@ class LibHUNT:
 
     def check(self, buffer: str) -> bool:
         """Checks if the given item is present in the filter.
-
             Parameters:
                 buffer (bytes): Item to check.
             Returns:
@@ -182,12 +181,12 @@ class LibHUNT:
         try:
             binary_data = buffer if isinstance(buffer, bytes) else bytes.fromhex(buffer)
         except:
-            print(buffer)
+            return -1
         result = LibHUNT.__bloom_add(self.__bloom, binary_data, len(binary_data))
         if result == -1:
-            raise RuntimeError("[E] libhunt add bloom: bloom not ready")
+            return -2
         else:
-            return result == 0
+            return 0
 
     def save(self, filename: str) -> None:
         """Saves the filter to the file.
