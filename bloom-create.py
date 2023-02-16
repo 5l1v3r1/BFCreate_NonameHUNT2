@@ -7,7 +7,7 @@
 @telegram: https://t.me/NonameHunt
 """
 
-version = 'Bloom creator 3.0 14.02.23'
+version = 'Bloom creator 3.2 16.02.23'
 
 from argparse import ArgumentParser
 from os import system, path, name, mkdir, remove
@@ -15,8 +15,8 @@ from time import time
 from signal import SIGINT, SIG_IGN, signal
 from datetime import datetime
 from lib.secp256k1_lib import b58_decode, bech32_address_decode
-from lib.libhunt import LibHUNT
-from cashaddress import convert
+from lib.hunt_lib import LibHUNT
+from lib.cashaddress import convert
 from multiprocessing import Pool, freeze_support, cpu_count
 from lib.patina import HashMap
 from colorama import Back, Fore, Style, init
