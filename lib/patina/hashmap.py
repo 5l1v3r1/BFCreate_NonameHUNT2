@@ -888,38 +888,38 @@ class HashMap(t.Generic[K, V]):
         with open(file_path, "rb") as file:
             return pickle.load(file)
         
-    def save2(self, filename: str):
-        with open(filename, 'wb') as f:
-            # Write the number of items in the map as an integer
-            f.write(struct.pack('i', len(self._dict)))
+    # def save2(self, filename: str):
+    #     with open(filename, 'wb') as f:
+    #         # Write the number of items in the map as an integer
+    #         f.write(struct.pack('i', len(self._dict)))
 
-            # Write each key-value pair as a string and its length, followed by the string
-            for key, value in self._dict.items():
-                key_bytes = str(key).encode()
-                value_bytes = str(value).encode()
+    #         # Write each key-value pair as a string and its length, followed by the string
+    #         for key, value in self._dict.items():
+    #             key_bytes = str(key).encode()
+    #             value_bytes = str(value).encode()
 
-                f.write(struct.pack('i', len(key_bytes)))
-                f.write(key_bytes)
-                f.write(struct.pack('i', len(value_bytes)))
-                f.write(value_bytes)
+    #             f.write(struct.pack('i', len(key_bytes)))
+    #             f.write(key_bytes)
+    #             f.write(struct.pack('i', len(value_bytes)))
+    #             f.write(value_bytes)
 
-    # Add the load method
-    @classmethod
-    def load2(cls, filename: str):
-        with open(filename, 'rb') as f:
-            # Read the number of items in the map
-            num_items = struct.unpack('i', f.read(4))[0]
+    # # Add the load method
+    # @classmethod
+    # def load2(cls, filename: str):
+    #     with open(filename, 'rb') as f:
+    #         # Read the number of items in the map
+    #         num_items = struct.unpack('i', f.read(4))[0]
 
-            map = cls()
+    #         map = cls()
 
-            # Read each key-value pair and add it to the map
-            for i in range(num_items):
-                key_len = struct.unpack('i', f.read(4))[0]
-                key = f.read(key_len).decode()
+    #         # Read each key-value pair and add it to the map
+    #         for i in range(num_items):
+    #             key_len = struct.unpack('i', f.read(4))[0]
+    #             key = f.read(key_len).decode()
 
-                value_len = struct.unpack('i', f.read(4))[0]
-                value = f.read(value_len).decode()
+    #             value_len = struct.unpack('i', f.read(4))[0]
+    #             value = f.read(value_len).decode()
 
-                map[key] = value
+    #             map[key] = value
 
-            return map
+    #         return map

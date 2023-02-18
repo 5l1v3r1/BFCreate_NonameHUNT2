@@ -10,7 +10,7 @@ import ctypes
 import os
 import platform
 
-version_LIB = "2.10 / 15.02.23"
+version_LIB = "2.11 / 18.02.23"
 
 class LibHUNT:
     if platform.system().lower().startswith('win'):
@@ -75,14 +75,6 @@ class LibHUNT:
     __lib.bloom_version.argtypes = []
     __lib.bloom_version.restype = ctypes.c_char_p
     __bloom_version = __lib.bloom_version
-    #keccak-sha3
-    # __lib.sha3_256.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.c_size_t, ctypes.POINTER(ctypes.c_ubyte)]
-    # __lib.sha3_256.restype = None
-    # __lib_sha3 = __lib.sha3_256
-    # #keccak-keyhunt
-    # __lib.KECCAK_256.argtypes = [ctypes.POINTER(ctypes.c_uint8), ctypes.c_size_t, ctypes.POINTER(ctypes.c_uint8)]
-    # __lib.KECCAK_256.restype = None
-    # __lib_keccak_KH = __lib.KECCAK_256
     #keccak
     __lib.keccak_256.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.c_size_t, ctypes.POINTER(ctypes.c_ubyte)]
     __lib.keccak_256.restype = None
@@ -101,56 +93,18 @@ class LibHUNT:
         hash = LibHUNT.__lib_old_elec_seed(data)
         return hash
 
-    # @staticmethod
-    # def get_keccak_KH(data: bytes):
-    #     digest = ctypes.create_string_buffer(32)
-    #     data_array = (ctypes.c_ubyte * len(data))(*data)
-    #     LibHUNT.__lib_keccak_KH(data_array, len(data_array), ctypes.cast(digest, ctypes.POINTER(ctypes.c_ubyte)))
-    #     return digest.raw
-
     @staticmethod
     def get_keccak(data: bytes):
         digest = ctypes.create_string_buffer(32)
         data_array = (ctypes.c_ubyte * len(data))(*data)
         LibHUNT.__lib_keccak(data_array, len(data_array), ctypes.cast(digest, ctypes.POINTER(ctypes.c_ubyte)))
         return digest.raw
-    
-    # @staticmethod
-    # def get_sha3(data: bytes) -> bytes:
-    #     digest = ctypes.create_string_buffer(32)
-    #     data_array = (ctypes.c_ubyte * len(data))(*data)
-    #     LibHUNT.__lib_sha3(data_array, len(data_array), ctypes.cast(digest, ctypes.POINTER(ctypes.c_ubyte)))
-    #     return digest.raw
 
     @staticmethod
     def get_sha256(data: bytes) -> bytes:
         output = (ctypes.c_ubyte * 32)()
         LibHUNT.__lib_sha256(data, len(data), ctypes.byref(output))
         return bytes(output)
-
-    @staticmethod
-    def print_type_sizes_c() -> None:
-        """Prints C type sizes.
-
-        Type sizes of C printed by print_type_sizes_c and Python's ctype type sizes printed by
-        print_type_sizes_python must be the same for the library to work correctly. """
-        type_sizes = LibHUNT.__print_type_sizes().decode("utf-8")
-        print(f"TYPE SIZES OF C:\n{type_sizes}")
-
-    @staticmethod
-    def print_type_sizes_python() -> None:
-        """Prints Python's ctype type sizes.
-
-        Type sizes of C printed by print_type_sizes_c and Python's ctype type sizes printed by
-        print_type_sizes_python must be the same for the library to work correctly. """
-        print("TYPE SIZES OF PYTHON:")
-        print(f"sizeof void* = {ctypes.sizeof(ctypes.c_void_p)}")
-        print(f"sizeof char* = {ctypes.sizeof(ctypes.c_char_p)}")
-        print(f"sizeof unsigned long long (uint64_t) = {ctypes.sizeof(ctypes.c_ulonglong)}")
-        print(f"sizeof double = {ctypes.sizeof(ctypes.c_double)}")
-        #print(f"sizeof long double = {ctypes.sizeof(ctypes.c_longdouble)}")
-        #print(f"sizeof int = {ctypes.sizeof(ctypes.c_int)}")
-
 
     @staticmethod
     def version() -> str:

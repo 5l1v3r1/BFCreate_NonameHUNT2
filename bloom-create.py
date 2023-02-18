@@ -7,7 +7,7 @@
 @telegram: https://t.me/NonameHunt
 """
 
-version = 'Bloom creator 3.2 16.02.23'
+version = 'Bloom creator 3.3 18.02.23'
 
 from argparse import ArgumentParser
 from os import system, path, name, mkdir, remove
@@ -186,7 +186,7 @@ if __name__ == "__main__":
                     bloom = LibHUNT(len(BF_list), 0.0000000000001)
                     for item in BF_list:
                         if rescan: 
-                            HM.insert(item, sec)
+                            HM.insert(bytes.fromhex(item), sec)
                             sec += 1
                         res = bloom.add(item)
                         if res == -1: print(f'\n[E] {color.res}Ошибка подачи HASH, подан HASH:{item} он не является HEX')
@@ -236,7 +236,7 @@ if __name__ == "__main__":
             bloom = LibHUNT(len(BF_list), 0.0000000000001)
             for item in BF_list:
                 if rescan: 
-                    HM.insert(item, sec)
+                    HM.insert(bytes.fromhex(item), sec)
                     sec += 1
                 res = bloom.add(item)
                 if res == -1: print(f'\n[E] {color.res}Ошибка подачи HASH, подан HASH:{item} он не является HEX')
